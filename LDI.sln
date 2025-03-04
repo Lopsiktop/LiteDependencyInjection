@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35818.85 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LDI.Models", "LDI.Models\LDI.Models.csproj", "{5F6C8979-EF24-4BE9-8381-1F7B2C3AEA47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LDI.Injection.Tests", "LDI.Injection.Tests\LDI.Injection.Tests.csproj", "{09093184-3C46-4298-B2E4-FE6DDC2CD3C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5F6C8979-EF24-4BE9-8381-1F7B2C3AEA47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F6C8979-EF24-4BE9-8381-1F7B2C3AEA47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F6C8979-EF24-4BE9-8381-1F7B2C3AEA47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F6C8979-EF24-4BE9-8381-1F7B2C3AEA47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09093184-3C46-4298-B2E4-FE6DDC2CD3C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09093184-3C46-4298-B2E4-FE6DDC2CD3C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09093184-3C46-4298-B2E4-FE6DDC2CD3C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09093184-3C46-4298-B2E4-FE6DDC2CD3C8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {105FD261-9B10-4046-9061-536859B3D331}
+	EndGlobalSection
+EndGlobal
