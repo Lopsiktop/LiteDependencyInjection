@@ -24,7 +24,7 @@ public class InjectionBuilder
 
         if (constructors.Length == 1)
             constructor = constructors.First();
-        if (constructors.Length > 1)
+        else if (constructors.Length > 1)
         {
             var attrsConstructor = constructors.Where(x => x.CustomAttributes.Any(c => c.AttributeType == typeof(InjectionConstructorAttribute)));
             if (attrsConstructor.Count() == 0)
