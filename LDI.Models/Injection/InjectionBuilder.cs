@@ -1,8 +1,4 @@
-﻿using LDI.Models.Attributes;
-using System;
-using System.Reflection;
-
-namespace LDI.Models.Injection;
+﻿namespace LDI.Models.Injection;
 
 public class InjectionBuilder
 {
@@ -14,28 +10,15 @@ public class InjectionBuilder
         _factory = new InstanceFactory();
     }
 
-    private ConstructorInfo _EcxeptionValidation(Type typeT, Type typeI)
+    private void _ExceptionValidation(Type typeT, Type typeI)
     {
         var implemented = typeT.GetInterfaces().Contains(typeI);
         if (!implemented)
             throw new NotImplementedException($"Type {typeT.Name} has to be implemented by {typeI.Name}");
-        var constructors = typeT.GetConstructors().Where(x => x.IsPublic).ToArray();
-        ConstructorInfo constructor = null;
 
-        if (constructors.Length == 1)
-            constructor = constructors.First();
-        else if (constructors.Length > 1)
-        {
-            var attrsConstructor = constructors.Where(x => x.CustomAttributes.Any(c => c.AttributeType == typeof(InjectionConstructorAttribute)));
-            if (attrsConstructor.Count() == 0)
-                throw new Exception($"Class {typeT.Name} has more than 1 constructor. For using specific constructor use attribute {nameof(InjectionConstructorAttribute)}");
-            else if (attrsConstructor.Count() == 1)
-                constructor = attrsConstructor.First();
-            else
-                throw new Exception($"Class {typeT.Name} cannot have more than 1 {nameof(InjectionConstructorAttribute)} attribute");
-        }
-
-        return constructor!;
+        var contains = _services.FirstOrDefault(x => x.Interface == typeI);
+        if (contains is not null)
+            throw new Exception($"Interface {typeI.Name} already in use");
     }
 
     public void AddTransient<I, T>()
@@ -45,9 +28,9 @@ public class InjectionBuilder
         Type typeT = typeof(T);
         Type typeI = typeof(I);
 
-        var constructor = _EcxeptionValidation(typeT, typeI);
+        _ExceptionValidation(typeT, typeI);
 
-        var service = new InjectionService(typeI, typeT, constructor, InjectionType.Transient);
+        var service = new InjectionService(typeI, typeT, InjectionType.Transient);
         _services.Add(service);
     }
 
@@ -60,7 +43,8 @@ public class InjectionBuilder
         if (service is null)
             throw new Exception($"Non existent service {type.Name}");
 
-        var parameters = service.ConstructorInfo.GetParameters();
+        //refactor this
+        var parameters = service.GetConstructor().GetParameters();
         object? instance = null;
 
         if (parameters.Length == 0)
@@ -76,6 +60,7 @@ public class InjectionBuilder
 
             instance = _factory.GetInstance(service, args);
         }
+        //end refactor
 
         if (instance is null)
             throw new ArgumentNullException($"Something went wrong trying to create {service.Realization.Name}");
