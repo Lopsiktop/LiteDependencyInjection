@@ -2,7 +2,7 @@
 
 namespace LDI.Models.Injection;
 
-public class InjectionBuilder
+public partial class InjectionBuilder
 {
     private readonly List<InjectionService> _services;
     private readonly InstanceFactory _factory;
@@ -83,16 +83,22 @@ public class InjectionBuilder
         return instance;
     }
 
-    public object GetService(Type type)
+    public object GetService(string typeName, bool ignoreCase = false)
     {
-        var interfaceService = _services.FirstOrDefault(x => x.Interface == type);
-        var classService = _services.FirstOrDefault(x => x.Realization == type);
+        var comparison = StringComparison.Ordinal;
+        if (ignoreCase)
+            comparison = StringComparison.OrdinalIgnoreCase;
+
+        var interfaceService = _services.FirstOrDefault(x => x.Interface?.Name.Equals(typeName, comparison) ?? false);
+        var classService = _services.FirstOrDefault(x => x.Realization.Name.Equals(typeName, comparison));
 
         if (interfaceService is not null)
             return _GetService(interfaceService);
         else if (classService is not null)
             return _GetService(classService);
 
-        throw new Exception($"Non existent service {type.Name}");
+        throw new Exception($"Non existent service {typeName}");
     }
+
+    public object GetService(Type type) => GetService(type.Name);
 }
