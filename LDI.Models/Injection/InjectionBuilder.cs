@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Reflection;
 
 namespace LDI.Models.Injection;
 
-public partial class InjectionBuilder
+public  class InjectionBuilder
 {
     private readonly List<InjectionService> _services;
     private readonly InstanceFactory _factory;
+
     public InjectionBuilder()
     {
         _services = new List<InjectionService>();
@@ -14,20 +16,39 @@ public partial class InjectionBuilder
 
     private void _ExceptionValidation(Type typeT, Type typeI)
     {
+        _InterfaceExceptionValidation(typeI);
+
+        _RealizationExceptionValidation(typeT);
+
         var implemented = typeT.GetInterfaces().Contains(typeI);
         if (!implemented)
             throw new NotImplementedException($"Type {typeT.Name} has to be implemented by {typeI.Name}");
+    }
+
+    private void _InterfaceExceptionValidation(Type typeI)
+    {
+        if (!typeI.IsInterface)
+            throw new Exception($"You can pass only interfaces, not {typeI.Name}");
 
         var contains = _services.FirstOrDefault(x => x.Interface == typeI);
         if (contains is not null)
             throw new Exception($"Interface {typeI.Name} already in use");
     }
 
-    private void _RealizationExceptionValidation(Type type)
+    private void _RealizationExceptionValidation(Type typeT)
     {
-        var contains = _services.FirstOrDefault(x => x.Realization == type);
+        var contains = _services.FirstOrDefault(x => x.Realization == typeT);
         if (contains is not null)
-            throw new Exception($"Class {type.Name} already in use");
+            throw new Exception($"Class {typeT.Name} already in use");
+
+        if (!typeT.IsClass)
+            throw new Exception($"You can pass only classes, not {typeT.Name}");
+
+        if (typeT.Name == nameof(String))
+            throw new Exception($"You cannot pass String");
+
+        if (typeT.IsAbstract)
+            throw new Exception($"You cannot pass abstract classes like {typeT.Name}");
     }
 
     public void AddTransient<I, T>()
