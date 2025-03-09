@@ -5,11 +5,11 @@ namespace LDI.Models.Injection;
 
 internal class InjectionService
 {
-    public Type Interface { get; set; }
+    public Type? Interface { get; set; }
     public Type Realization { get; set; }
     public InjectionType Type { get; set; }
 
-    public InjectionService(Type _interface, Type realization, InjectionType type)
+    public InjectionService(Type? _interface, Type realization, InjectionType type)
     {
         Interface = _interface;
         Realization = realization;

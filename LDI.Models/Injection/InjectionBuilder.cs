@@ -1,4 +1,6 @@
-﻿namespace LDI.Models.Injection;
+﻿using System;
+
+namespace LDI.Models.Injection;
 
 public class InjectionBuilder
 {
@@ -21,6 +23,13 @@ public class InjectionBuilder
             throw new Exception($"Interface {typeI.Name} already in use");
     }
 
+    private void _RealizationExceptionValidation(Type type)
+    {
+        var contains = _services.FirstOrDefault(x => x.Realization == type);
+        if (contains is not null)
+            throw new Exception($"Class {type.Name} already in use");
+    }
+
     public void AddTransient<I, T>()
         where I : class
         where T : class, I
@@ -34,15 +43,21 @@ public class InjectionBuilder
         _services.Add(service);
     }
 
+    public void AddTransient<T>()
+        where T : class
+    {
+        Type type = typeof(T);
+
+        _RealizationExceptionValidation(type);
+
+        var service = new InjectionService(null, type, InjectionType.Transient);
+        _services.Add(service);
+    }
+
     public I GetService<I>() => (I)GetService(typeof(I));
 
-    public object GetService(Type type)
+    private object _GetService(InjectionService service)
     {
-        var service = _services.FirstOrDefault(x => x.Interface == type);
-
-        if (service is null)
-            throw new Exception($"Non existent service {type.Name}");
-
         //refactor this
         var parameters = service.GetConstructor().GetParameters();
         object? instance = null;
@@ -66,5 +81,18 @@ public class InjectionBuilder
             throw new ArgumentNullException($"Something went wrong trying to create {service.Realization.Name}");
 
         return instance;
+    }
+
+    public object GetService(Type type)
+    {
+        var interfaceService = _services.FirstOrDefault(x => x.Interface == type);
+        var classService = _services.FirstOrDefault(x => x.Realization == type);
+
+        if (interfaceService is not null)
+            return _GetService(interfaceService);
+        else if (classService is not null)
+            return _GetService(classService);
+
+        throw new Exception($"Non existent service {type.Name}");
     }
 }

@@ -365,3 +365,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /LDI.Injection.Tests/Models/InjectionBuilderTests.cs
 /LDI.Injection.Tests/LDI.Injection.Tests.csproj
+/LDI.Api.Tests
+/LDI.WPF.Tests

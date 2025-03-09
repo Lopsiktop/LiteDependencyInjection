@@ -22,6 +22,21 @@ namespace LDI.Models.Tests
         }
 
         [Fact]
+        public void GetService_AddTransientClassService_ReturnsEmailSender()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddTransient<ILogger, ConsoleLogger>();
+            builder.AddTransient<EmailSender>();
+
+            // act
+            var sender = builder.GetService<EmailSender>();
+
+            // assert
+            sender.Should().NotBeNull();
+        }
+
+        [Fact]
         public void AddTransient_WithAlreadyInUserInterface_ThrowsException()
         {
             // arrange
