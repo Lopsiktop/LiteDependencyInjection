@@ -51,7 +51,7 @@ public  class InjectionBuilder
             throw new Exception($"You cannot pass abstract classes like {typeT.Name}");
     }
 
-    public void AddTransient<I, T>()
+    private void _AddService<I, T>(InjectionType injtype)
         where I : class
         where T : class, I
     {
@@ -60,20 +60,29 @@ public  class InjectionBuilder
 
         _ExceptionValidation(typeT, typeI);
 
-        var service = new InjectionService(typeI, typeT, InjectionType.Transient);
+        var service = new InjectionService(typeI, typeT, injtype);
         _services.Add(service);
     }
 
-    public void AddTransient<T>()
+    private void _AddService<T>(InjectionType injtype)
         where T : class
     {
         Type type = typeof(T);
 
         _RealizationExceptionValidation(type);
 
-        var service = new InjectionService(null, type, InjectionType.Transient);
+        var service = new InjectionService(null, type, injtype);
         _services.Add(service);
     }
+
+    public void AddTransient<I, T>()
+        where I : class
+        where T : class, I 
+        => _AddService<I, T>(InjectionType.Transient);
+
+    public void AddTransient<T>()
+        where T : class
+        => _AddService<T>(InjectionType.Transient);
 
     public I GetService<I>() => (I)GetService(typeof(I));
 
