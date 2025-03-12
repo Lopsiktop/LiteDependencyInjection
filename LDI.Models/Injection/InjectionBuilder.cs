@@ -75,6 +75,15 @@ public  class InjectionBuilder
         _services.Add(service);
     }
 
+    public void AddSingleton<I, T>()
+        where I : class
+        where T : class, I
+        => _AddService<I, T>(InjectionType.Singleton);
+
+    public void AddSingleton<T>()
+        where T : class
+        => _AddService<T>(InjectionType.Singleton);
+
     public void AddTransient<I, T>()
         where I : class
         where T : class, I 

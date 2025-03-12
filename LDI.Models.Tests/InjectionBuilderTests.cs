@@ -202,5 +202,35 @@ namespace LDI.Models.Tests
             // assert
             act.Should().Throw<Exception>().WithMessage("You can pass only classes, not ILogger");
         }
+
+        [Fact]
+        public void AddTransient_WithInterface_ChecksIfRealizationCreatesEveryRequest()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddTransient<ILogger, ConsoleLogger>();
+
+            // act
+            var logger = builder.GetService<ILogger>();
+            var logger2 = builder.GetService<ILogger>();
+
+            // assert
+            logger.Name.Should().NotBe(logger2.Name);
+        }
+
+        [Fact]
+        public void AddSingleton_WithInterface_ChecksIfRealizationCreatesOnce()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddSingleton<ILogger, ConsoleLogger>();
+
+            // act
+            var logger = builder.GetService<ILogger>();
+            var logger2 = builder.GetService<ILogger>();
+
+            // assert
+            logger.Name.Should().Be(logger2.Name);
+        }
     }
 }
