@@ -39,4 +39,9 @@ internal class InjectionService
 
         return constructor;
     }
+
+    public InjectionService Clone(InjectionType type)
+    {
+        return new InjectionService(Interface, Realization, type);
+    }
 }

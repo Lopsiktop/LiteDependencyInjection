@@ -1,17 +1,14 @@
-﻿using System;
-using System.Reflection;
+﻿namespace LDI.Models.Injection;
 
-namespace LDI.Models.Injection;
-
-public  class InjectionBuilder
+public class InjectionBuilder : InjectionProvider
 {
     private readonly List<InjectionService> _services;
-    private readonly InstanceFactory _factory;
+    private readonly List<object> _singletons;
 
     public InjectionBuilder()
     {
         _services = new List<InjectionService>();
-        _factory = new InstanceFactory();
+        _singletons = new List<object>();
     }
 
     private void _ExceptionValidation(Type typeT, Type typeI)
@@ -51,6 +48,8 @@ public  class InjectionBuilder
             throw new Exception($"You cannot pass abstract classes like {typeT.Name}");
     }
 
+    public ScopeProvider CreateScope() => new ScopeProvider(this, _services, _singletons);
+
     private void _AddService<I, T>(InjectionType injtype)
         where I : class
         where T : class, I
@@ -75,6 +74,15 @@ public  class InjectionBuilder
         _services.Add(service);
     }
 
+    public void AddScoped<I, T>()
+        where I : class
+        where T : class, I
+        => _AddService<I, T>(InjectionType.Scoped);
+
+    public void AddScoped<T>()
+        where T : class
+        => _AddService<T>(InjectionType.Scoped);
+
     public void AddSingleton<I, T>()
         where I : class
         where T : class, I
@@ -93,36 +101,7 @@ public  class InjectionBuilder
         where T : class
         => _AddService<T>(InjectionType.Transient);
 
-    public I GetService<I>() => (I)GetService(typeof(I));
-
-    private object _GetService(InjectionService service)
-    {
-        //refactor this
-        var parameters = service.GetConstructor().GetParameters();
-        object? instance = null;
-
-        if (parameters.Length == 0)
-            instance = _factory.GetInstance(service);
-        else
-        {
-            object[] args = new object[parameters.Length];
-            for (int i = 0; i < args.Length; i++)
-            {
-                var ptype = parameters[i].ParameterType;
-                args[i] = GetService(ptype);
-            }
-
-            instance = _factory.GetInstance(service, args);
-        }
-        //end refactor
-
-        if (instance is null)
-            throw new ArgumentNullException($"Something went wrong trying to create {service.Realization.Name}");
-
-        return instance;
-    }
-
-    public object GetService(string typeName, bool ignoreCase = false)
+    public override object GetService(string typeName, bool ignoreCase = false)
     {
         var comparison = StringComparison.Ordinal;
         if (ignoreCase)
@@ -132,12 +111,10 @@ public  class InjectionBuilder
         var classService = _services.FirstOrDefault(x => x.Realization.Name.Equals(typeName, comparison));
 
         if (interfaceService is not null)
-            return _GetService(interfaceService);
+            return GetService(interfaceService, _singletons);
         else if (classService is not null)
-            return _GetService(classService);
+            return GetService(classService, _singletons);
 
         throw new Exception($"Non existent service {typeName}");
     }
-
-    public object GetService(Type type) => GetService(type.Name);
 }

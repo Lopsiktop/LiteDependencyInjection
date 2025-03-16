@@ -6,7 +6,7 @@
 
         public ConsoleLogger()
         {
-            Name = new Random().Next(5, 20).ToString();
+            Name = Guid.NewGuid().ToString();
         }
 
         public void Send(string msg)

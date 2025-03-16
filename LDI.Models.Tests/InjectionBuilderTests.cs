@@ -247,5 +247,94 @@ namespace LDI.Models.Tests
             // assert
             act.Should().Throw<Exception>("Class ClassWithNoPublicConstructor has no public constructors");
         }
+
+        [Fact]
+        public void AddScoped_FromRootBuilder_ThrowsException()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddScoped<ConsoleLogger>();
+
+            // act
+            Action act = () => builder.GetService<ConsoleLogger>();
+
+            // assert
+            act.Should().Throw<Exception>("You cannot get scoped service (ConsoleLogger) from root builder");
+        }
+
+        [Fact]
+        public void AddScoped_FromScopeProvider_ReturnsScopedService()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddScoped<ConsoleLogger>();
+            var scope = builder.CreateScope();
+
+            // act
+            var logger = scope.GetService<ConsoleLogger>();
+
+            // assert
+            logger.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void AddScoped_FromTwoScopeProviders_ReturnsTheSameScopedServicesForFirstProviderAndAnotherForSecondProvider()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddScoped<ConsoleLogger>();
+            var scope = builder.CreateScope();
+            var scope2 = builder.CreateScope();
+
+            // act
+            var logger = scope.GetService<ConsoleLogger>();
+            var logger2 = scope.GetService<ConsoleLogger>();
+
+            var logger3 = scope2.GetService<ConsoleLogger>();
+            var logger4 = scope2.GetService<ConsoleLogger>();
+
+            // assert
+            logger.Name.Should().Be(logger2.Name);
+            logger3.Name.Should().Be(logger4.Name);
+
+            logger.Name.Should().NotBe(logger3.Name);
+        }
+
+        [Fact]
+        public void AddScoped_FromOneScopeProvider_CanGetTransientServices()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddTransient<ConsoleLogger>();
+
+            var scope = builder.CreateScope();
+
+            // act
+            var logger = scope.GetService<ConsoleLogger>();
+            var logger2 = scope.GetService<ConsoleLogger>();
+
+            // assert
+            logger.Name.Should().NotBe(logger2.Name);
+        }
+
+        [Fact]
+        public void AddScoped_FromAnotherScopeProviders_ReturnsTheSameSingleton()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddSingleton<ConsoleLogger>();
+
+            var scope = builder.CreateScope();
+            var scope2 = builder.CreateScope();
+
+            // act
+            var logger = scope.GetService<ConsoleLogger>();
+            var logger2 = scope.GetService<ConsoleLogger>();
+            var logger3 = builder.GetService<ConsoleLogger>();
+
+            // assert
+            logger.Name.Should().Be(logger2.Name);
+            logger.Name.Should().Be(logger3.Name);
+        }
     }
 }

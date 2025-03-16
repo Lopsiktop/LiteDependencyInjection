@@ -1,12 +1,12 @@
 ﻿namespace LDI.Models.Injection;
 
-internal class InstanceFactory
+internal static class InstanceFactory
 {
-    private static List<object> singletons = new List<object>();
+    public static object? GetInstance(InjectionService service, List<object> singletons) => GetInstance(service, singletons, null);
 
-    public object? GetInstance(InjectionService service) => GetInstance(service, null);
-
-    public object? GetInstance(InjectionService service, object[]? args)
+    public static object? GetInstance(InjectionService service, 
+        List<object> singletons,
+        object[]? args)
     {
         if (service.Type == InjectionType.Transient)
             return Activator.CreateInstance(service.Realization, args);
@@ -20,6 +20,10 @@ internal class InstanceFactory
             singletons.Add(realization);
 
             return realization;
+        }
+        else if (service.Type == InjectionType.Scoped)
+        {
+            throw new Exception($"You cannot get scoped service ({service.Interface?.Name ?? service.Realization.Name}) from root builder");
         }
 
         throw new Exception("Unsupported injection type");
