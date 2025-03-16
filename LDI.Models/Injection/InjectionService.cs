@@ -18,14 +18,15 @@ internal class InjectionService
 
     public ConstructorInfo GetConstructor()
     {
-        //todo: test this
         var typeT = Realization;
         var constructors = typeT.GetConstructors().Where(x => x.IsPublic).ToArray();
         ConstructorInfo constructor = null!;
 
-        if (constructors.Length == 1)
+        if (constructors.Length == 0)
+            throw new Exception($"Class {typeT.Name} has no public constructors");
+        else if (constructors.Length == 1)
             constructor = constructors.First();
-        else if (constructors.Length > 1)
+        else // when more than 1 constructor
         {
             var attrsConstructor = constructors.Where(x => x.CustomAttributes.Any(c => c.AttributeType == typeof(InjectionConstructorAttribute)));
             if (attrsConstructor.Count() == 0)

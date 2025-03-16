@@ -2,6 +2,7 @@ using FluentAssertions;
 using LDI.Models.Injection;
 using LDI.Models.Tests.TestModels;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace LDI.Models.Tests
 {
@@ -231,6 +232,20 @@ namespace LDI.Models.Tests
 
             // assert
             logger.Name.Should().Be(logger2.Name);
+        }
+
+        [Fact]
+        public void AddSingleton_WithClassWithoutPublicConstructor_ThrowsException()
+        {
+            // arrange
+            var builder = new InjectionBuilder();
+            builder.AddSingleton<ClassWithNoPublicConstructor>();
+
+            // act
+            Action act = () => builder.GetService<ClassWithNoPublicConstructor>();
+
+            // assert
+            act.Should().Throw<Exception>("Class ClassWithNoPublicConstructor has no public constructors");
         }
     }
 }
